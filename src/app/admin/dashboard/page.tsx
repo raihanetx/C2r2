@@ -11,7 +11,8 @@ interface DashboardStats {
   totalRevenue: number;
   pendingOrders: number;
   completedOrders: number;
-  totalCustomers: number;
+  activeCoupons: number;
+  totalCoupons: number;
   recentOrders: any[];
 }
 
@@ -21,7 +22,8 @@ export default function AdminDashboardPage() {
     totalRevenue: 0,
     pendingOrders: 0,
     completedOrders: 0,
-    totalCustomers: 0,
+    activeCoupons: 0,
+    totalCoupons: 0,
     recentOrders: []
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -43,15 +45,21 @@ export default function AdminDashboardPage() {
         orders = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       }
       
+      // Load coupons from API
+      const couponsResponse = await fetch('/api/admin/coupons');
+      let coupons = [];
+      
+      if (couponsResponse.ok) {
+        coupons = await couponsResponse.json();
+      }
+      
       // Calculate stats
       const totalOrders = orders.length;
       const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.total || 0), 0);
       const pendingOrders = orders.filter((order: any) => order.status === 'pending').length;
       const completedOrders = orders.filter((order: any) => order.status === 'completed').length;
-      
-      // Get unique customers
-      const uniqueCustomers = new Set(orders.map((order: any) => order.customer?.email || order.customerEmail));
-      const totalCustomers = uniqueCustomers.size;
+      const activeCoupons = coupons.filter((coupon: any) => coupon.status === 'active').length;
+      const totalCoupons = coupons.length;
 
       // Get recent orders (last 5)
       const recentOrders = orders
@@ -63,7 +71,8 @@ export default function AdminDashboardPage() {
         totalRevenue,
         pendingOrders,
         completedOrders,
-        totalCustomers,
+        activeCoupons,
+        totalCoupons,
         recentOrders
       });
     } catch (error) {
@@ -156,6 +165,19 @@ export default function AdminDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Active Coupons</CardTitle>
+            <i className="fas fa-ticket-alt text-orange-600"></i>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.activeCoupons}</div>
+            <p className="text-xs text-gray-500 mt-1">
+              {stats.totalCoupons} total coupons
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Pending Orders</CardTitle>
             <i className="fas fa-clock text-yellow-600"></i>
           </CardHeader>
@@ -163,19 +185,6 @@ export default function AdminDashboardPage() {
             <div className="text-2xl font-bold">{stats.pendingOrders}</div>
             <p className="text-xs text-gray-500 mt-1">
               Awaiting processing
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Customers</CardTitle>
-            <i className="fas fa-users text-blue-600"></i>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCustomers}</div>
-            <p className="text-xs text-gray-500 mt-1">
-              Unique customers
             </p>
           </CardContent>
         </Card>
@@ -258,16 +267,16 @@ export default function AdminDashboardPage() {
                 Manage Categories
               </Button>
             </Link>
+            <Link href="/admin/dashboard/coupons">
+              <Button className="w-full justify-start" variant="outline">
+                <i className="fas fa-ticket-alt mr-2"></i>
+                Manage Coupons
+              </Button>
+            </Link>
             <Link href="/admin/dashboard/hot-deals">
               <Button className="w-full justify-start" variant="outline">
                 <i className="fas fa-fire mr-2"></i>
                 Manage Hot Deals
-              </Button>
-            </Link>
-            <Link href="/admin/dashboard/customers">
-              <Button className="w-full justify-start" variant="outline">
-                <i className="fas fa-users mr-2"></i>
-                View Customers
               </Button>
             </Link>
             <Link href="/admin/dashboard/analytics">

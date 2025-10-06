@@ -146,8 +146,8 @@ class AdminService {
           'orders.view', 'orders.manage', 'orders.delete',
           'products.view', 'products.create', 'products.edit', 'products.delete',
           'categories.view', 'categories.create', 'categories.edit', 'categories.delete',
+          'coupons.view', 'coupons.create', 'coupons.edit', 'coupons.delete',
           'hot_deals.view', 'hot_deals.create', 'hot_deals.edit', 'hot_deals.delete',
-          'customers.view', 'customers.manage', 'customers.delete',
           'analytics.view', 'analytics.export',
           'settings.view', 'settings.manage',
           'admin.manage'
@@ -158,8 +158,8 @@ class AdminService {
           'orders.view', 'orders.manage',
           'products.view', 'products.create', 'products.edit',
           'categories.view', 'categories.create', 'categories.edit',
+          'coupons.view', 'coupons.create', 'coupons.edit',
           'hot_deals.view', 'hot_deals.create', 'hot_deals.edit',
-          'customers.view',
           'analytics.view',
           'settings.view'
         ];
@@ -169,8 +169,8 @@ class AdminService {
           'orders.view',
           'products.view',
           'categories.view',
-          'hot_deals.view',
-          'customers.view'
+          'coupons.view',
+          'hot_deals.view'
         ];
       default:
         return [];

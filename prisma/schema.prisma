@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -65,7 +65,7 @@ model Category {
 
 model SiteConfig {
   id                    String   @id @default(cuid())
-  heroBanner            String[] @default([])
+  heroBanner            Json     @default("[]")
   favicon               String   @default("")
   contactPhone          String   @default("")
   contactWhatsapp       String   @default("")
@@ -94,9 +94,12 @@ model Order {
   notes           String?
   paymentId       String?
   paymentStatus   String   @default("pending")
+  couponCode      String?
+  couponDiscount  Float    @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   items           OrderItem[]
+  coupons         OrderCoupon[]
   customer        User?    @relation(fields: [customerId], references: [id])
 }
 
@@ -110,4 +113,33 @@ model OrderItem {
   duration    String
   createdAt   DateTime @default(now())
   order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  name            String
+  description     String?
+  discountType    String   @default("percentage") // percentage, fixed
+  discountValue   Float
+  minimumAmount   Float?
+  maximumDiscount Float?
+  usageLimit      Int?
+  usageCount      Int      @default(0)
+  status          String   @default("active") // active, inactive, expired
+  validFrom       DateTime @default(now())
+  validUntil      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orders          OrderCoupon[]
+}
+
+model OrderCoupon {
+  id       String @id @default(cuid())
+  orderId  String
+  couponId String
+  discount Float
+  createdAt DateTime @default(now())
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  coupon   Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
 }

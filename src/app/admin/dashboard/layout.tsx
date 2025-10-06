@@ -65,16 +65,16 @@ export default function AdminDashboardLayout({
       permission: 'categories.view'
     },
     {
+      title: 'Coupons',
+      href: '/admin/dashboard/coupons',
+      icon: 'fas fa-ticket-alt',
+      permission: 'coupons.view'
+    },
+    {
       title: 'Hot Deals',
       href: '/admin/dashboard/hot-deals',
       icon: 'fas fa-fire',
       permission: 'hot_deals.view'
-    },
-    {
-      title: 'Customers',
-      href: '/admin/dashboard/customers',
-      icon: 'fas fa-users',
-      permission: 'customers.view'
     },
     {
       title: 'Analytics',

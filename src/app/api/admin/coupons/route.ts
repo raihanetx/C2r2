@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
+import adminService from '@/lib/admin';
 
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
+    const isAdmin = adminService.isAuthenticated();
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -25,8 +25,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
+    const isAdmin = adminService.isAuthenticated();
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

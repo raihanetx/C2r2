@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  name            String
+  description     String
+  longDescription String?
+  image           String
+  category        String
+  categorySlug    String
+  slug            String
+  pricing         Json
+  stockOut        Boolean  @default(false)
+  status          String   @default("active") // active, inactive, draft
+  featured        Boolean  @default(false)
+  categoryId      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  categoryObj     Category? @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String
+  status      String   @default("active") // active, inactive
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    Product[]
+}
+
+model SiteConfig {
+  id                    String   @id @default(cuid())
+  heroBanner            String[] @default([])
+  favicon               String   @default("")
+  contactPhone          String   @default("")
+  contactWhatsapp       String   @default("")
+  contactEmail          String   @default("")
+  adminPassword         String   @default("password123")
+  usdToBdtRate          Float    @default(110)
+  siteLogo              String   @default("")
+  heroSliderInterval    Int      @default(5000)
+  hotDealsSpeed         Int      @default(40)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  customerId      String?
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  status          String   @default("pending")
+  subtotal        Float
+  total           Float
+  currency        String   @default("USD")
+  deliveryType    String   @default("digital")
+  notes           String?
+  paymentId       String?
+  paymentStatus   String   @default("pending")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  items           OrderItem[]
+  customer        User?    @relation(fields: [customerId], references: [id])
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  productId   String
+  productName String
+  quantity    Int
+  price       Float
+  duration    String
+  createdAt   DateTime @default(now())
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
